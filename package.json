@@ -1,6 +1,6 @@
 {
   "name": "@chincheta/rabbitbus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A simple bus wrapper for RabbitMQ.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/chincheta/rabbitbus.git"
   },
   "keywords": [
-    "puppeteer"
+    "RabbitMQ", "amqplib", "bus"
   ],
   "author": "chincheta",
   "license": "MIT",
