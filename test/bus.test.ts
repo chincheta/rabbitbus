@@ -38,12 +38,33 @@ class HeavyHandler implements MessageHandler {
     }
 }
 
+class DataHandler implements MessageHandler {
+    async handle(message: Message): Promise<Event[]> {
+        crumbs.push(message.data['text']);
+        crumbs.push(...message.data['array']);
+        return [];
+    }
+}
+
+class DataMessage implements Message {
+    type: string = 'data-message';
+    data: Record<string, any> = {};
+
+    constructor(text: string, array: string[]) {
+        this.data['text'] = text;
+        this.data['array'] = array;
+    }
+}
+
+
 class TestMessage implements Message {
     type: string = 'test-message';
+    data: Record<string, any> = {};
 }
 
 class TestEvent implements Event {
     type: string = 'test-event';
+    data: Record<string, any> = {};
 }
 
 describe('rabbitbus tests', () => {
@@ -122,4 +143,18 @@ describe('rabbitbus tests', () => {
         await promise;
     }, 30000);
 
+    test('handler sees message data', async () => {
+        let context = await bus.createContext('test-message-data-exchange');
+        crumbs = [];
+        context.subscribe('*', new DataHandler());
+        let promise = context.listen({maxConcurrentHandlers: 1});
+        await delay(250);
+        await context.publish(new DataMessage('test-text-1', ['a1', 'a2']));
+        await delay(250);
+        await context.publish(new DataMessage('test-text-2', ['a3', 'a4']));
+        await delay(5000);
+        expect(crumbs).toStrictEqual(['test-text-1', 'a1', 'a2', 'test-text-2', 'a3', 'a4']);
+        await bus.disposeContext(context);
+        await promise;
+    }, 30000);
 });
